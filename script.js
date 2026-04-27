@@ -58,30 +58,56 @@ async function translateText(text) {
 }
 
 // 3. ANALİZ VE RÖNTGEN
+
+    // --- GELİŞMİŞ PUANLAMA MOTORU ---
+const academicWords = ["theory", "analysis", "significant", "approach", "data", "research", "process", "context", "concept", "evidence", "hypothesis", "consistent", "indicate", "period", "policy", "source", "factor"];
+
 function analyzeText() {
     const text = document.getElementById('textInput').value.trim();
     if (!text) return alert("Lütfen metin girin.");
 
-    const words = text.split(/\s+/).length;
-    const connectors = ["however", "furthermore", "nevertheless", "consequently", "whereas", "nonetheless", "notwithstanding"];
+    const words = text.split(/\s+/).filter(w => w.length > 0);
+    const wordCount = words.length;
+    const sentences = text.split(/[.!?]/).filter(s => s.trim().length > 0).length;
+    
+    // 1. Cümle Başına Düşen Ortalama Kelime (Akademik metinlerde bu sayı yüksektir)
+    const avgSentenceLength = sentences > 0 ? wordCount / sentences : wordCount;
+    
+    // 2. Bağlaç Kontrolü (Genişletilmiş liste)
+    const connectors = ["however", "furthermore", "nevertheless", "consequently", "whereas", "nonetheless", "therefore", "in addition", "moreover", "alternatively"];
     let conjCount = 0;
     connectors.forEach(c => { if (text.toLowerCase().includes(c)) conjCount++; });
 
-    // Seviye ve İstatistik
-    document.getElementById('cefrLevel').innerText = conjCount > 1 || words > 100 ? "B2/C1" : "A2/B1";
-    document.getElementById('readTime').innerText = Math.max(1, Math.ceil(words / 150));
-    
-    // Akademik Skor
-    const score = Math.min(100, (conjCount * 20) + (words / 10));
-    document.getElementById('academicScore').innerText = "%" + Math.floor(score);
-    document.getElementById('academicProgress').style.width = score + "%";
+    // 3. Akademik Kelime Yoğunluğu
+    let academicMatch = 0;
+    academicWords.forEach(w => { if (text.toLowerCase().includes(w)) academicMatch++; });
 
+    // --- YENİ FORMÜL ---
+    // Cümle uzunluğu (max 40p) + Bağlaçlar (max 30p) + Kelime Havuzu (max 30p)
+    const sentenceScore = Math.min(40, avgSentenceLength * 1.5);
+    const connectorScore = Math.min(30, conjCount * 10);
+    const vocabScore = Math.min(30, academicMatch * 5);
+    
+    const finalScore = Math.floor(sentenceScore + connectorScore + vocabScore);
+
+    // Ekrana Yazdır
+    document.getElementById('academicScore').innerText = "%" + finalScore;
+    document.getElementById('academicProgress').style.width = finalScore + "%";
+    
+    // CEFR Tahmini
+    let cefr = "A2/B1";
+    if (finalScore > 50 || avgSentenceLength > 18) cefr = "B2";
+    if (finalScore > 75 && avgSentenceLength > 22) cefr = "C1/C2";
+    document.getElementById('cefrLevel').innerText = cefr;
+
+    // Diğer işlemler...
+    document.getElementById('readTime').innerText = Math.max(1, Math.ceil(wordCount / 150));
     document.getElementById('resultArea').classList.remove('hidden');
     document.getElementById('highlightedText').innerText = text;
-    
-    // Çeviriyi Başlat
     translateText(text);
 }
+   
+
 
 // 4. GRAMER TEŞHİS
 function detectGrammar() {
@@ -122,11 +148,56 @@ function clearText() {
     ["resultArea", "grammarAlert"].forEach(id => document.getElementById(id).classList.add('hidden'));
 }
 
-function speakWithSettings() {
+let isSpeaking = false; // Ses çalıyor mu?
+let isPaused = false;   // Duraklatıldı mı?
+
+function handleTTS() {
+    const text = document.getElementById('textInput').value.trim();
+    const btn = document.getElementById('ttsBtn');
+
+    if (!text) return alert("Okunacak metin bulunamadı.");
+
+    // 1. Eğer hiç başlamadıysa veya tamamen bittiyse (YENİDEN BAŞLAT)
+    if (!window.speechSynthesis.speaking || (window.speechSynthesis.speaking && !isSpeaking)) {
+        window.speechSynthesis.cancel(); // Ne olur ne olmaz sıfırla
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.85;
+
+        utterance.onstart = () => {
+            isSpeaking = true;
+            btn.innerText = "⏸️ Duraklat";
+        };
+
+        utterance.onend = () => {
+            isSpeaking = false;
+            isPaused = false;
+            btn.innerText = "🔊 Sesli Oku";
+        };
+
+        window.speechSynthesis.speak(utterance);
+    } 
+    // 2. Eğer şu an okuyorsa (DURAKLAT)
+    else if (isSpeaking && !isPaused) {
+        window.speechSynthesis.pause();
+        isPaused = true;
+        btn.innerText = "▶️ Devam Et";
+    } 
+    // 3. Eğer duraklatılmışsa (DEVAM ET)
+    else if (isPaused) {
+        window.speechSynthesis.resume();
+        isPaused = false;
+        btn.innerText = "⏸️ Duraklat";
+    }
+}
+
+// Tamamen durdurmak ve sıfırlamak için (Opsiyonel Stop butonu için)
+function stopTTS() {
     window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(document.getElementById('textInput').value);
-    u.lang = 'en-US'; u.rate = 0.85;
-    window.speechSynthesis.speak(u);
+    isSpeaking = false;
+    isPaused = false;
+    document.getElementById('ttsBtn').innerText = "🔊 Sesli Oku";
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -134,5 +205,53 @@ window.addEventListener('DOMContentLoaded', () => {
     const st = localStorage.getItem('theme');
     if (st) document.documentElement.setAttribute('data-theme', st);
 });
+
+
+// Geri bildirim
+
+// --- GERİ BİLDİRİM FORMU (Yönlendirmesiz Gönderim) ---
+document.getElementById("feedbackForm").addEventListener("submit", async function(event) {
+    event.preventDefault(); // Sayfanın Formspree'ye gitmesini engeller
+
+    const status = document.getElementById("formStatus");
+    const btn = document.getElementById("feedbackBtn");
+    const input = document.getElementById("feedbackInput");
+    
+    // Senin Formspree linkin
+    const formUrl = "https://formspree.io/f/mnjlyrro"; 
+
+    // Arayüzü güncelle (Gönderiliyor hissi)
+    btn.disabled = true;
+    btn.innerText = "Gönderiliyor...";
+    status.style.display = "none";
+
+    try {
+        const response = await fetch(formUrl, {
+            method: "POST",
+            body: new FormData(this),
+            headers: { 'Accept': 'application/json' }
+        });
+
+        if (response.ok) {
+            status.innerText = "✅ Mesajınız iletildi, teşekkürler!";
+            status.style.color = "var(--accent)";
+            status.style.display = "block";
+            this.reset(); // Kutuyu temizle
+        } else {
+            status.innerText = "❌ Bir hata oluştu, tekrar deneyin.";
+            status.style.color = "#ef4444";
+            status.style.display = "block";
+        }
+    } catch (error) {
+        status.innerText = "🌐 Bağlantı hatası!";
+        status.style.display = "block";
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "Gönder";
+        // 4 saniye sonra başarı mesajını gizle
+        setTimeout(() => { status.style.display = "none"; }, 4000);
+    }
+});
+
 
 // https://formspree.io/f/mnjlyrro

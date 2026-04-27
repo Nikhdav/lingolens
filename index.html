@@ -48,11 +48,11 @@
         </div>
 
         <div class="action-grid">
-            <button onclick="speakWithSettings()" class="action-btn">🔊 Sesli Oku</button>
-            <button onclick="detectGrammar()" class="action-btn">💡 Gramer Teşhis</button>
-            <button onclick="alert('PDF Oluşturuluyor...')" class="action-btn">📄 PDF Notu</button>
-            <button onclick="alert('Link Kopyalandı!')" class="action-btn">🔗 Paylaş</button>
-        </div>
+    <button id="ttsBtn" onclick="handleTTS()" class="action-btn">🔊 Sesli Oku</button>
+    <button onclick="stopTTS()" class="action-btn">⏹️ Durdur</button>
+    <button onclick="detectGrammar()" class="action-btn">💡 Gramer Teşhis</button>
+    <button onclick="alert('PDF Oluşturuluyor...')" class="action-btn">📄 PDF Notu</button>
+</div>
 
         <div id="grammarAlert" class="grammar-card card hidden">
             <h4>🔍 Gramer Bulguları</h4>
@@ -75,11 +75,13 @@
 </div>
 
         <footer class="feedback-section card">
-            <form id="feedbackForm" action="https://formspree.io/f/mnjlyrro" method="POST">
-                <textarea name="message" placeholder="Geliştirmem için önerin var mı?" class="input-field" required></textarea>
-                <button type="submit" class="btn-primary">Gönder</button>
-            </form>
-        </footer>
+    <h4>💡 Geri Bildirim</h4>
+    <form id="feedbackForm">
+        <textarea id="feedbackInput" name="message" placeholder="Geliştirmem için önerin var mı?" class="input-field" required></textarea>
+        <button type="submit" id="feedbackBtn" class="btn-primary">Gönder</button>
+    </form>
+    <p id="formStatus" style="margin-top: 15px; font-size: 0.9rem; font-weight: 600; display: none;"></p>
+</footer>
     </div>
     <script src="script.js"></script>
 </body>
