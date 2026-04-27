@@ -3,99 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LingoLens | Dil ve Kültür Analizörü</title>
+    <title>LingoLens | Çok Yönlü Dil Asistanı</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>LingoLens</h1>
-            <p>Gramer Röntgeni & Kültürel Bağlam Analizi</p>
-        </header>
-<div class="theme-switch-wrapper">
-    <button id="themeToggle" onclick="toggleTheme()">🌙 Modu Değiştir</button>
-</div>
-        <main>
-            <textarea id="textInput" placeholder="Analiz edilecek İngilizce metni buraya yapıştırın..."></textarea>
-            
-            <div class="controls">
-                <button onclick="analyzeText()" id="analyzeBtn">Metni Röntgenle</button>
-                <button onclick="clearAll()" id="clearBtn">Temizle</button>
+            <div class="logo-area">
+                <h1>LingoLens</h1>
+                <p>Gramer Röntgeni & Akademik Analiz</p>
             </div>
-
-<div class="stats-bar">
-    <div class="stat-item">Zorluk: <span id="difficultyLevel">-</span></div>
-    <div class="stat-item">Okuma Süresi: <span id="readTime">0</span> dk</div>
-    <div class="stat-item">Akademik Puan: <span id="academicScore">%0</span></div>
-</div>
-
-<div id="actionButtons" class="hidden">
-    <button onclick="generateQuiz()" class="btn-secondary">📝 Quiz Oluştur</button>
-    <button onclick="exportToPDF()" class="btn-secondary">📄 PDF Notu Al</button>
-</div>
-
-<div id="examTimer" class="exam-timer">
-    <span>YDT 2026'ya Kalan Zaman: </span>
-    <strong id="daysLeft">--</strong> Gün
-</div>
-
-<button onclick="speakText()" class="btn-icon">🔊 Sesli Oku</button>
-
-<button onclick="shareAnalysis()" class="btn-icon">🔗 Analizi Paylaş</button>
-
-
-<div id="wordCloudArea" class="hidden card">
-    <h3>Kelime Radarı (Görsel Analiz)</h3>
-    <div id="wordCloud" class="word-cloud-container"></div>
-    <p class="hint">Büyük kelimeler metinde en sık geçen ve odaklanman gereken yapılardır.</p>
-</div>
-
-
-<section class="feedback-section card">
-    <h3>Geliştirmeme Yardım Et</h3>
-    <p>Fikirlerini yaz, doğrudan bana ulaşsın! (Anonim olarak gönderebilirsin)</p>
-    
-    <form id="feedbackForm" action="https://formspree.io/f/mnjlyrro" method="POST">
-        <div class="input-group">
-            <textarea name="message" placeholder="Önerin veya geri bildirimin nedir?" class="input-field" required></textarea>
+           <button id="themeToggle" class="theme-switch" onclick="toggleTheme()" aria-label="Tema Değiştir">
+    <div class="switch-track">
+        <div class="switch-handle">
+            <span class="mode-icon">🌙</span>
         </div>
-        
-        <input type="hidden" name="_subject" value="LingoLens Yeni Anonim Geri Bildirim">
-        
-        <button type="submit" class="btn-primary">Gönder</button>
-        <p id="my-form-status"></p>
-    </form>
-</section>
+    </div>
+</button>
+        </header>
 
+        <div class="daily-article card">
+            <h4>📌 Günün Akademik Okuması</h4>
+            <p id="dailyArticleText">Yükleniyor...</p>
+            <a href="#" id="dailyArticleLink" target="_blank">Habere Git →</a>
+        </div>
 
-<div id="quizArea" class="hidden card">
-    <h3>Pratik Yap: Boşlukları Doldur</h3>
-    <div id="quizContent"></div>
+        <div class="input-section card">
+            <textarea id="textInput" placeholder="Analiz edilecek İngilizce metni buraya yapıştırın veya bir kelimeye tıklayarak anlamını görün..."></textarea>
+            
+            <div class="stats-bar">
+                <div class="stat-item">Seviye: <span id="cefrLevel">A1</span></div>
+                <div class="stat-item">Okuma: <span id="readTime">0</span> dk</div>
+                <div class="stat-item">Akademik Puan: <span id="academicScore">%0</span></div>
+            </div>
+            
+            <div class="academic-bar-container">
+                <div id="academicProgress" class="academic-progress"></div>
+            </div>
+
+            <div class="main-controls">
+                <button id="analyzeBtn" onclick="analyzeText()">Metni Röntgenle</button>
+                <button id="clearBtn" onclick="clearText()" class="btn-ghost">Temizle</button>
+            </div>
+        </div>
+
+        <div class="action-grid">
+            <button onclick="speakWithSettings()" class="action-btn">🔊 Sesli Oku</button>
+            <button onclick="detectGrammar()" class="action-btn">💡 Gramer Teşhis</button>
+            <button onclick="alert('PDF Oluşturuluyor...')" class="action-btn">📄 PDF Notu</button>
+            <button onclick="alert('Link Kopyalandı!')" class="action-btn">🔗 Paylaş</button>
+        </div>
+
+        <div id="grammarAlert" class="grammar-card card hidden">
+            <h4>🔍 Gramer Bulguları</h4>
+            <ul id="grammarList"></ul>
+        </div>
+
+        <div id="resultArea" class="result-card card hidden">
+            <h3>Analiz Edilen Metin</h3>
+            <div id="highlightedText" class="text-display"></div>
+        </div>
+
+        <div id="resultArea" class="result-card card hidden">
+    <h3>Analiz Sonucu</h3>
+    <div id="highlightedText" class="text-display"></div>
+    
+    <div class="translation-section">
+        <h4>🇹🇷 Türkçe Çeviri</h4>
+        <p id="translatedText" class="translation-display">Çeviri hazırlanıyor...</p>
+    </div>
 </div>
 
-            <div id="resultArea" class="hidden">
-                <h3>Analiz Edilmiş Metin</h3>
-                <div id="highlightedText" class="text-display"></div>
-                
-                <div class="legend">
-                    <span class="tag inversion">Devrik (Inversion)</span>
-                    <span class="tag idiom">Deyim/Kültürel</span>
-                    <span class="tag grammar">İleri Gramer</span>
-                </div>
-
-                <h3>Akademik Kelime Panosu (YKS/YDT Odaklı)</h3>
-                <table id="vocabTable">
-                    <thead>
-                        <tr>
-                            <th>Kelime</th>
-                            <th>Metindeki Kullanım</th>
-                            <th>Önem Derecesi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="vocabBody"></tbody>
-                </table>
-            </div>
-        </main>
+        <footer class="feedback-section card">
+            <form id="feedbackForm" action="https://formspree.io/f/mnjlyrro" method="POST">
+                <textarea name="message" placeholder="Geliştirmem için önerin var mı?" class="input-field" required></textarea>
+                <button type="submit" class="btn-primary">Gönder</button>
+            </form>
+        </footer>
     </div>
     <script src="script.js"></script>
 </body>
