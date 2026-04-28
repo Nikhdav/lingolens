@@ -1,6 +1,7 @@
 🔍 LingoLens
 LingoLens, akademik metinleri analiz etmek, dil seviyelerini belirlemek ve karmaşık yapıları daha anlaşılır parçalara bölmek için geliştirilmiş bir metin analiz ve çeviri asistanıdır.
 
+
 🚀 Öne Çıkan Özellikler
 CEFR Seviye Tespiti: Metinlerin zorluk derecesini (A1-C2) anlık olarak analiz eder.
 
