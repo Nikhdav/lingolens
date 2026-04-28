@@ -1,5 +1,4 @@
-🔍 LingoLens
-LingoLens, akademik metinleri analiz etmek, dil seviyelerini belirlemek ve karmaşık yapıları daha anlaşılır parçalara bölmek için geliştirilmiş bir metin analiz ve çeviri asistanıdır.
+🔍 LingoLens, akademik metinleri analiz etmek, dil seviyelerini belirlemek ve karmaşık yapıları daha anlaşılır parçalara bölmek için geliştirilmiş bir metin analiz ve çeviri asistanıdır.
 
 
 🚀 Öne Çıkan Özellikler
